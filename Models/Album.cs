@@ -19,6 +19,8 @@ namespace AlbumStore.Models
         public string Genre { get; set; }
         
         [Required]
+        [RegularExpression(@"^\d+\.\d{0,2}$")]      // For 2 decimal places
+        [Range(0, 9999999999999999.99)]             // For maximum 18 places
         public decimal Price { get; set; }
     }
 }

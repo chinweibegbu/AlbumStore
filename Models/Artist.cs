@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace AlbumStore.Models
 {
@@ -18,5 +19,8 @@ namespace AlbumStore.Models
         [Required]
         [MaxLength(50)]
         public string StageName { get; set; }
+
+        public List<Album> Albums { get; set; }
+        public ArtistDescription ArtistDescription { get; set; }
     }
 }

@@ -8,5 +8,8 @@ namespace AlbumStore.Models
         
         [Required]
         public string Details { get; set; }
+
+        public int ArtistID { get; set; }
+        public Artist Artist { get; set; }
     }
 }

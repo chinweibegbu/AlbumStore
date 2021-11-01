@@ -37,6 +37,7 @@ namespace AlbumStore
             // Repository interface mappings
             services.AddScoped<IAlbumRepository, SqlAlbumRepository>();
             services.AddScoped<IArtistRepository, SqlArtistRepository>();
+            services.AddScoped<IArtistDescriptionRepository, SqlArtistDescriptionRepository>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

@@ -3,13 +3,13 @@ using System.Collections.Generic;
 
 namespace AlbumStore.Data
 {
-    interface IArtistDescriptionDescriptionRepository
+    public interface IArtistDescriptionRepository
     {
         public IEnumerable<ArtistDescription> GetAllArtistDescriptions();
-        public ArtistDescription GetArtistDescriptionById();
-        public void CreateArtistDescription();
-        public void UpdateArtistDescription();
-        public void DeleteArtistDescription();
+        public ArtistDescription GetArtistDescriptionById(int id);
+        public void CreateArtistDescription(ArtistDescription artistDescription);
+        public void UpdateArtistDescription(ArtistDescription artistDescription);
+        public void DeleteArtistDescription(ArtistDescription artistDescription);
         public void SaveChanges();
     }
 }

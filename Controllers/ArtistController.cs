@@ -34,7 +34,7 @@ namespace AlbumStore.Controllers
         }
 
         // GET api/artists/{id}
-        [HttpGet("{id}")]
+        [HttpGet("{id}", Name = "GetArtistById")]
         public ActionResult<Artist> GetArtistById(int id)
         {
             Artist artist= _repository.GetArtistById(id);
@@ -62,8 +62,9 @@ namespace AlbumStore.Controllers
 
             _repository.CreateArtist(artistToCreate);
             _repository.SaveChanges();
-            
-            return Ok();
+
+            // return Ok();
+            return CreatedAtRoute(nameof(GetArtistById), new { Id = artistToCreate.ArtistId }, artistToCreate);
         }
 
         // POST api/artists/solo

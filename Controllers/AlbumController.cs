@@ -27,7 +27,7 @@ namespace AlbumStore.Controllers
         }
 
         // GET api/albums/{id}
-        [HttpGet("{id}")]
+        [HttpGet("{id}", Name = "GetAlbumById")]
         public ActionResult<Album> GetAlbumById(int id)
         {
             Album album = _repository.GetAlbumById(id);
@@ -56,7 +56,8 @@ namespace AlbumStore.Controllers
             _repository.CreateAlbum(albumToCreate);
             _repository.SaveChanges();
 
-            return Ok();
+            // return Ok();
+            return CreatedAtRoute(nameof(GetAlbumById), new { Id = albumToCreate.AlbumId }, albumToCreate);
         }
 
         // PATCH api/albums/{id}

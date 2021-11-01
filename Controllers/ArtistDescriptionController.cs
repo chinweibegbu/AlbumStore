@@ -27,7 +27,7 @@ namespace AlbumStore.Controllers
         }
 
         // GET api/artistDescriptions/{id}
-        [HttpGet("{id}")]
+        [HttpGet("{id}", Name = "GetArtistDescriptionById")]
         public ActionResult<ArtistDescription> GetArtistDescriptionById(int id)
         {
             ArtistDescription artistDescription = _repository.GetArtistDescriptionById(id);
@@ -53,8 +53,9 @@ namespace AlbumStore.Controllers
 
             _repository.CreateArtistDescription(artistDescriptionToCreate);
             _repository.SaveChanges();
-            
-            return Ok();
+
+            // return Ok();
+            return CreatedAtRoute(nameof(GetArtistDescriptionById), new { Id = artistDescriptionToCreate.ArtistDescriptionId }, artistDescriptionToCreate);
         }
 
         // PATCH api/artistDescriptions/{id}

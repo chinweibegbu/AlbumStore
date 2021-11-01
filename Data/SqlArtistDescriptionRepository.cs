@@ -1,4 +1,5 @@
 ﻿using AlbumStore.Models;
+using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -15,12 +16,12 @@ namespace AlbumStore.Data
 
         public IEnumerable<ArtistDescription> GetAllArtistDescriptions()
         {
-            return _context.ArtistDescriptions.ToList();
+            return _context.ArtistDescriptions.Include(desc => desc.Artist).ToList();
         }
 
         public ArtistDescription GetArtistDescriptionById(int id)
         {
-            return _context.ArtistDescriptions.FirstOrDefault(a => a.ArtistDescriptionId == id);
+            return _context.ArtistDescriptions.Include(desc => desc.Artist).FirstOrDefault(a => a.ArtistDescriptionId == id);
         }
 
         public void CreateArtistDescription(ArtistDescription artistDescription)

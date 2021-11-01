@@ -1,4 +1,5 @@
 ﻿using AlbumStore.Models;
+using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -15,14 +16,12 @@ namespace AlbumStore.Data
 
         public IEnumerable<Album> GetAllAlbums()
         {
-            return _context.Albums.ToList();
+            return _context.Albums.Include(album => album.Artist).ToList();
         }
 
-        public Album GetAlbumById(int Id)
+        public Album GetAlbumById(int id)
         {
-            Album album = new Album();
-
-            return album;
+            return _context.Albums.Include(album => album.Artist).FirstOrDefault(a => a.AlbumId == id);
         }
 
         public List<Album> GetAlbumsByArtist(string stageName)
@@ -34,21 +33,17 @@ namespace AlbumStore.Data
 
         public void CreateAlbum(Album album)
         {
-            Album newAlbum = new Album();
-
-            _context.Add(newAlbum);
+            _context.Albums.Add(album);
         }
 
-        public void UpdateAlbum(int id, Album album)
+        public void UpdateAlbum(Album album)
         {
             // Empty
         }
 
         public void DeleteAlbum(Album album)
         {
-            Album albumToDelete = new Album();
-
-            _context.Add(albumToDelete);
+            _context.Albums.Remove(album);
         }
 
         public void SaveChanges()

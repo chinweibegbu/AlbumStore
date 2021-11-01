@@ -16,7 +16,7 @@ namespace AlbumStore.Data
 
         public IEnumerable<Artist> GetAllArtists()
         {
-            return _context.Artists.ToList();
+            return _context.Artists.Include(artist => artist.Albums).ToList();
         }
 
         public IEnumerable<Artist> GetAllSoloArtists()

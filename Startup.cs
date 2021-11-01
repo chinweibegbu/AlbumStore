@@ -5,6 +5,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Newtonsoft.Json.Serialization;
+using System;
 
 namespace AlbumStore
 {
@@ -24,10 +26,13 @@ namespace AlbumStore
             services.AddDbContext<AlbumStoreContext>(opt => opt.UseSqlServer(Configuration.GetConnectionString("AlbumStoreConnection")));
 
             // Add Newtonsoft
-            services.AddControllers();
+            services.AddControllers().AddNewtonsoftJson(s =>
+            {
+                s.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
+            });
 
             // Automapper
-
+            services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
             // Repository interface mappings
             services.AddScoped<IAlbumRepository, SqlAlbumRepository>();

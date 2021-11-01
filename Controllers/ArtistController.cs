@@ -1,5 +1,6 @@
 ﻿using AlbumStore.Data;
 using AlbumStore.Models;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -83,7 +84,31 @@ namespace AlbumStore.Controllers
         }
 
         // PATCH api/artists/{id}
+        [HttpPatch("{id}")]
+        public ActionResult UpdateArtist(int id, JsonPatchDocument<Artist> patchDoc)
+        {
+            // Get artist to update
+            Artist artistToUpdate = _repository.GetArtistById(id);
 
+            if (artistToUpdate == null)
+            {
+                return NotFound();
+            }
+
+            // Update artist
+            patchDoc.ApplyTo(artistToUpdate, ModelState);
+
+            // Check model validity
+            if (!ModelState.IsValid)
+            {
+                return ValidationProblem(ModelState);
+            }
+
+            _repository.UpdateArtist(artistToUpdate);
+            _repository.SaveChanges();
+
+            return NoContent();
+        }
 
         // DELETE api/artists/{id}
         [HttpDelete("{id}")]

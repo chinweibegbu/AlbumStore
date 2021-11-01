@@ -41,7 +41,7 @@ namespace AlbumStore.Data
 
         public void UpdateArtist(Artist artist)
         {
-
+            // Empty
         }
 
         public void DeleteArtist(Artist artist)

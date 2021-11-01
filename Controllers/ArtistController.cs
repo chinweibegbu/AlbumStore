@@ -1,5 +1,7 @@
 ﻿using AlbumStore.Data;
+using AlbumStore.DTOs;
 using AlbumStore.Models;
+using AutoMapper;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -12,30 +14,36 @@ namespace AlbumStore.Controllers
     public class ArtistController : ControllerBase
     {
         private readonly IArtistRepository _repository;
+        private readonly IMapper _mapper;
 
         // Set up repository using dependency injection
-        public ArtistController(IArtistRepository iRepository)
+        public ArtistController(IArtistRepository iRepository, IMapper iMapper)
         {
             _repository = iRepository;
+            _mapper = iMapper;
         }
 
         // GET api/artists/
         [HttpGet]
-        public ActionResult<List<Album>> GetAllArtists()
+        public ActionResult<List<ArtistReadDto>> GetAllArtists()
         {
-            return Ok(_repository.GetAllArtists());
+            List<Artist> artists = (List<Artist>)_repository.GetAllArtists();
+            List<ArtistReadDto> artistReadDtos = _mapper.Map<List<ArtistReadDto>>(artists);
+            return Ok(artistReadDtos);
         }
 
         // GET api/artists/solo
         [HttpGet("solo")]
-        public ActionResult<List<Album>> GetAllSoloArtists()
+        public ActionResult<List<SoloArtistReadDto>> GetAllSoloArtists()
         {
-            return Ok(_repository.GetAllSoloArtists());
+            List<SoloArtist> soloArtists = (List<SoloArtist>)_repository.GetAllSoloArtists();
+            List<SoloArtistReadDto> soloArtistReadDtos = _mapper.Map<List<SoloArtistReadDto>>(soloArtists);
+            return Ok(soloArtistReadDtos);
         }
 
         // GET api/artists/{id}
         [HttpGet("{id}", Name = "GetArtistById")]
-        public ActionResult<Artist> GetArtistById(int id)
+        public ActionResult<ArtistReadDto> GetArtistById(int id)
         {
             Artist artist= _repository.GetArtistById(id);
             
@@ -44,16 +52,18 @@ namespace AlbumStore.Controllers
                 return NotFound();
             }
 
-            return Ok(artist);
+            ArtistReadDto artistReadDto = _mapper.Map<ArtistReadDto>(artist);
+
+            return Ok(artistReadDto);
         }
 
         // GET api/artists/{artist}
 
         // POST api/artists/
         [HttpPost]
-        public ActionResult CreateArtist(Artist artist)
+        public ActionResult CreateArtist(ArtistWriteDto artistWriteDto)
         {
-            Artist artistToCreate = artist;
+            Artist artistToCreate = _mapper.Map<Artist>(artistWriteDto);
 
             if (artistToCreate == null)
             {
@@ -69,9 +79,9 @@ namespace AlbumStore.Controllers
 
         // POST api/artists/solo
         [HttpPost("solo")]
-        public ActionResult CreateSoloArtist(SoloArtist artist)
+        public ActionResult CreateSoloArtist(SoloArtistWriteDto soloArtistWriteDto)
         {
-            SoloArtist soloArtistToCreate = artist;
+            SoloArtist soloArtistToCreate = _mapper.Map<SoloArtist>(soloArtistWriteDto);
 
             if (soloArtistToCreate == null)
             {
@@ -81,12 +91,13 @@ namespace AlbumStore.Controllers
             _repository.CreateSoloArtist(soloArtistToCreate);
             _repository.SaveChanges();
 
-            return Ok();
+            // return Ok();
+            return CreatedAtRoute(nameof(GetArtistById), new { Id = soloArtistToCreate.ArtistId }, soloArtistToCreate);
         }
 
         // PATCH api/artists/{id}
         [HttpPatch("{id}")]
-        public ActionResult UpdateArtist(int id, JsonPatchDocument<Artist> patchDoc)
+        public ActionResult UpdateArtist(int id, JsonPatchDocument<ArtistUpdateDto> patchDoc)
         {
             // Get artist to update
             Artist artistToUpdate = _repository.GetArtistById(id);
@@ -96,16 +107,55 @@ namespace AlbumStore.Controllers
                 return NotFound();
             }
 
+            // Create mapping
+            ArtistUpdateDto artistUpdateDto = _mapper.Map<ArtistUpdateDto>(artistToUpdate);
+
             // Update artist
-            patchDoc.ApplyTo(artistToUpdate, ModelState);
+            patchDoc.ApplyTo(artistUpdateDto, ModelState);
 
             // Check model validity
-            if (!ModelState.IsValid)
+            if (!TryValidateModel(artistToUpdate))
             {
                 return ValidationProblem(ModelState);
             }
 
+            // Update with mapper
+            _mapper.Map(artistUpdateDto, artistToUpdate);
+
             _repository.UpdateArtist(artistToUpdate);
+            _repository.SaveChanges();
+
+            return NoContent();
+        }
+
+        // PATCH api/artists/solo/{id}
+        [HttpPatch("solo/{id}")]
+        public ActionResult UpdateSoloArtist(int id, JsonPatchDocument<SoloArtistUpdateDto> patchDoc)
+        {
+            // Get artist to update
+            Artist soloArtistToUpdate = _repository.GetArtistById(id);
+
+            if (soloArtistToUpdate == null)
+            {
+                return NotFound();
+            }
+
+            // Create mapping
+            SoloArtistUpdateDto soloArtistUpdateDto = _mapper.Map<SoloArtistUpdateDto>(soloArtistToUpdate);
+
+            // Update artist
+            patchDoc.ApplyTo(soloArtistUpdateDto, ModelState);
+
+            // Check model validity
+            if (!TryValidateModel(soloArtistToUpdate))
+            {
+                return ValidationProblem(ModelState);
+            }
+
+            // Update with mapper
+            _mapper.Map(soloArtistUpdateDto, soloArtistToUpdate);
+
+            _repository.UpdateArtist(soloArtistToUpdate);
             _repository.SaveChanges();
 
             return NoContent();

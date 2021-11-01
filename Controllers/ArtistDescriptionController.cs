@@ -1,5 +1,7 @@
 ﻿using AlbumStore.Data;
+using AlbumStore.DTOs;
 using AlbumStore.Models;
+using AutoMapper;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -12,23 +14,27 @@ namespace AlbumStore.Controllers
     public class ArtistDescriptionController : ControllerBase
     {
         private readonly IArtistDescriptionRepository _repository;
+        private readonly IMapper _mapper;
 
         // Set up repository using dependency injection
-        public ArtistDescriptionController(IArtistDescriptionRepository iRepository)
+        public ArtistDescriptionController(IArtistDescriptionRepository iRepository, IMapper iMapper)
         {
             _repository = iRepository;
+            _mapper = iMapper;
         }
 
         // GET api/artistDescriptions/
         [HttpGet]
-        public ActionResult<List<Album>> GetAllArtistDescriptions()
+        public ActionResult<List<ArtistDescriptionReadDto>> GetAllArtistDescriptions()
         {
-            return Ok(_repository.GetAllArtistDescriptions());
+            List<ArtistDescription> artistDescriptions = (List<ArtistDescription>)_repository.GetAllArtistDescriptions();
+            List<ArtistDescriptionReadDto> artistDescriptionReadDtos = _mapper.Map<List<ArtistDescriptionReadDto>>(_repository.GetAllArtistDescriptions());
+            return Ok(artistDescriptionReadDtos);
         }
 
         // GET api/artistDescriptions/{id}
         [HttpGet("{id}", Name = "GetArtistDescriptionById")]
-        public ActionResult<ArtistDescription> GetArtistDescriptionById(int id)
+        public ActionResult<ArtistDescriptionReadDto> GetArtistDescriptionById(int id)
         {
             ArtistDescription artistDescription = _repository.GetArtistDescriptionById(id);
             
@@ -37,14 +43,16 @@ namespace AlbumStore.Controllers
                 return NotFound();
             }
 
-            return Ok(artistDescription);
+            ArtistDescriptionReadDto artistDescriptionReadDto = _mapper.Map<ArtistDescriptionReadDto>(artistDescription);
+
+            return Ok(artistDescriptionReadDto);
         }
 
         // POST api/artistDescriptions/
         [HttpPost]
-        public ActionResult CreateArtistDescription(ArtistDescription artistDescription)
+        public ActionResult CreateArtistDescription(ArtistDescriptionWriteDto artistDescriptionWriteDto)
         {
-            ArtistDescription artistDescriptionToCreate = artistDescription;
+            ArtistDescription artistDescriptionToCreate = _mapper.Map<ArtistDescription>(artistDescriptionWriteDto);
 
             if (artistDescriptionToCreate == null)
             {
@@ -60,7 +68,7 @@ namespace AlbumStore.Controllers
 
         // PATCH api/artistDescriptions/{id}
         [HttpPatch("{id}")]
-        public ActionResult UpdateArtistDescription(int id, JsonPatchDocument<ArtistDescription> patchDoc)
+        public ActionResult UpdateArtistDescription(int id, JsonPatchDocument<ArtistDescriptionUpdateDto> patchDoc)
         {
             // Get artist to update
             ArtistDescription artistDescriptionToUpdate = _repository.GetArtistDescriptionById(id);
@@ -70,14 +78,20 @@ namespace AlbumStore.Controllers
                 return NotFound();
             }
 
+            // Create mapping
+            ArtistDescriptionUpdateDto artistDescriptionUpdateDto = _mapper.Map<ArtistDescriptionUpdateDto>(artistDescriptionToUpdate);
+
             // Update artist
-            patchDoc.ApplyTo(artistDescriptionToUpdate, ModelState);
+            patchDoc.ApplyTo(artistDescriptionUpdateDto, ModelState);
 
             // Check model validity
-            if (!ModelState.IsValid)
+            if (!TryValidateModel(artistDescriptionToUpdate))
             {
                 return ValidationProblem(ModelState);
             }
+
+            // Update with mapper
+            _mapper.Map(artistDescriptionUpdateDto, artistDescriptionToUpdate);
 
             _repository.UpdateArtistDescription(artistDescriptionToUpdate);
             _repository.SaveChanges();

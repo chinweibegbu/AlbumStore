@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using AlbumStore.DTOs;
+using AlbumStore.DTOs.InternalClasses;
 using AlbumStore.Models;
 
 namespace AlbumStore.Profiles
@@ -12,6 +13,8 @@ namespace AlbumStore.Profiles
             CreateMap<AlbumWriteDto, Album>();
             CreateMap<AlbumUpdateDto, Album>();
             CreateMap<Album, AlbumUpdateDto>();
+
+            CreateMap<Album, ArtistAlbumReadDto>();
         }
     }
 }

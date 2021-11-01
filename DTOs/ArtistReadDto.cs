@@ -1,4 +1,5 @@
 ﻿using AlbumStore.Models;
+using AlbumStore.DTOs.InternalClasses;
 using System.Collections.Generic;
 
 namespace AlbumStore.DTOs
@@ -6,7 +7,7 @@ namespace AlbumStore.DTOs
     public class ArtistReadDto
     {
         public string StageName { get; set; }
-        public List<Album> Albums { get; set; }
-        public ArtistDescription ArtistDescription { get; set; }
+        public List<ArtistAlbumReadDto> Albums { get; set; }
+        public ArtistDescReadDto ArtistDescription { get; set; }
     }
 }

@@ -1,14 +1,12 @@
 ﻿using System;
-using AlbumStore.DTOs.InternalClasses;
 
-namespace AlbumStore.DTOs
+namespace AlbumStore.DTOs.InternalClasses
 {
-    public class AlbumReadDto
+    public class ArtistAlbumReadDto
     {
         public string AlbumName { get; set; }
         public DateTime ReleaseDate { get; set; }
         public string Genre { get; set; }
         public decimal Price { get; set; }
-        public AlbumArtistReadDto Artist { get; set; }
     }
 }

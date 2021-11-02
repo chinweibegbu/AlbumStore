@@ -19,9 +19,9 @@ namespace AlbumStore.Data
             return _context.Artists.Include(artist => artist.Albums).Include(artist => artist.ArtistDescription).ToList();
         }
 
-        public IEnumerable<Artist> GetAllSoloArtists()
+        public IEnumerable<SoloArtist> GetAllSoloArtists()
         {
-            return _context.Artists.Include(artist => artist.Albums).Include(artist => artist.ArtistDescription).Where(a => EF.Property<string>(a, "Discriminator") == "SoloArtist");
+            return _context.SoloArtists.Include(soloArtist => soloArtist.Albums).Include(soloArtist => soloArtist.ArtistDescription).ToList();
         }
 
         public Artist GetArtistById(int id)

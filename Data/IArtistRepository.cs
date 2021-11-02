@@ -6,7 +6,7 @@ namespace AlbumStore.Data
     public interface IArtistRepository
     {
         public IEnumerable<Artist> GetAllArtists();
-        public IEnumerable<Artist> GetAllSoloArtists();
+        public IEnumerable<SoloArtist> GetAllSoloArtists();
         public Artist GetArtistById(int id);
         public void CreateArtist(Artist artist);
         public void CreateSoloArtist(SoloArtist soloArtist);

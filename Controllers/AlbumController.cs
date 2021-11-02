@@ -1,5 +1,7 @@
 ﻿using AlbumStore.Data;
+using AlbumStore.DTOs;
 using AlbumStore.Models;
+using AutoMapper;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -12,18 +14,22 @@ namespace AlbumStore.Controllers
     public class AlbumController : ControllerBase
     {
         private readonly IAlbumRepository _repository;
+        private readonly IMapper _mapper;
 
         // Set up repository using dependency injection
-        public AlbumController(IAlbumRepository iRepository)
+        public AlbumController(IAlbumRepository iRepository, IMapper iMapper)
         {
             _repository = iRepository;
+            _mapper = iMapper;
         }
 
         // GET api/albums/
         [HttpGet]
         public ActionResult<List<Album>> GetAllAlbums()
         {
-            return Ok(_repository.GetAllAlbums());
+            List<Album> artists = (List<Album>)_repository.GetAllAlbums();
+            List<AlbumReadDto> artistReadDtos = _mapper.Map<List<AlbumReadDto>>(artists);
+            return Ok(artistReadDtos);
         }
 
         // GET api/albums/{id}
@@ -37,16 +43,18 @@ namespace AlbumStore.Controllers
                 return NotFound();
             }
 
-            return Ok(album);
+            AlbumReadDto albumReadDto = _mapper.Map<AlbumReadDto>(album);
+
+            return Ok(albumReadDto);
         }
 
         // GET api/albums/{album}
 
         // POST api/albums/
         [HttpPost]
-        public ActionResult CreateAlbum(Album album)
+        public ActionResult CreateAlbum(AlbumWriteDto albumWriteDto)
         {
-            Album albumToCreate = album;
+            Album albumToCreate = _mapper.Map<Album>(albumWriteDto);
 
             if (albumToCreate == null)
             {
@@ -62,7 +70,7 @@ namespace AlbumStore.Controllers
 
         // PATCH api/albums/{id}
         [HttpPatch("{id}")]
-        public ActionResult UpdateAlbum(int id, JsonPatchDocument<Album> patchDoc)
+        public ActionResult UpdateAlbum(int id, JsonPatchDocument<AlbumUpdateDto> patchDoc)
         {
             // Get album to update
             Album albumToUpdate = _repository.GetAlbumById(id);
@@ -72,14 +80,20 @@ namespace AlbumStore.Controllers
                 return NotFound();
             }
 
+            // Create mapping
+            AlbumUpdateDto albumUpdateDto = _mapper.Map<AlbumUpdateDto>(albumToUpdate);
+
             // Update album
-            patchDoc.ApplyTo(albumToUpdate, ModelState);
+            patchDoc.ApplyTo(albumUpdateDto, ModelState);
 
             // Check model validity
-            if (!ModelState.IsValid)
+            if (!TryValidateModel(albumToUpdate))
             {
                 return ValidationProblem(ModelState);
             }
+
+            // Update with mapper
+            _mapper.Map(albumUpdateDto, albumToUpdate);
 
             _repository.UpdateAlbum(albumToUpdate);
             _repository.SaveChanges();

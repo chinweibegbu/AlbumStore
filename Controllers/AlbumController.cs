@@ -121,10 +121,13 @@ namespace AlbumStore.Controllers
 
         // GET api/albums/search?...
         [HttpGet("search")]
-        public ActionResult<List<AlbumReadDto>> Search([FromQuery] AlbumReadDto? albumReadDto)
+        public ActionResult<List<AlbumReadDto>> Search([FromQuery] AlbumReadDto? albumReadDto, [FromQuery] DateTime? fromDate, [FromQuery] DateTime? toDate)
         {
+            // Create matching results
             List<Album> matches = new List<Album>();
+            List<Album> completeMatches = new List<Album>();
 
+            // Filter out based on search fields (name, genre, artist)
             if ((albumReadDto.AlbumName != null) && (albumReadDto.Genre != null) && (albumReadDto.Artist != null))
             {
                 matches = (List<Album>)_repository.Search(albumReadDto.AlbumName, albumReadDto.Genre, albumReadDto.Artist.StageName);
@@ -151,12 +154,43 @@ namespace AlbumStore.Controllers
                 matches = (List<Album>)_repository.GetAllAlbums();
             }
 
+            // If it is empty, return NotFound()
             if (!matches.Any())
             {
                 return NotFound();
+            } else // If it is not empty, filter by date
+            {
+                for(int i = 0; i < matches.Count; i++)
+                {
+                    Album album = matches.ElementAt<Album>(i);
+
+                    if (fromDate != null && toDate != null)
+                    {
+                        if (album.ReleaseDate >= fromDate && album.ReleaseDate <= toDate)
+                        {
+                            completeMatches.Add(album);
+                        }
+                    } else if (fromDate == null && toDate != null)
+                    {
+                        if (album.ReleaseDate <= toDate)
+                        {
+                            completeMatches.Add(album);
+                        }
+                    } else if (fromDate != null && toDate == null)
+                    {
+                        if (album.ReleaseDate >= fromDate)
+                        {
+                            completeMatches.Add(album);
+                        }
+                    } else
+                    {
+                        completeMatches = matches;
+                        break;
+                    }
+                }
             }
 
-            List<AlbumReadDto> matchDTOs = _mapper.Map<List<AlbumReadDto>>(matches);
+            List<AlbumReadDto> matchDTOs = _mapper.Map<List<AlbumReadDto>>(completeMatches);
 
             return Ok(matchDTOs);
         }

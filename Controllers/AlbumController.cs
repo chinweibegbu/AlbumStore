@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace AlbumStore.Controllers
 {
@@ -25,7 +26,7 @@ namespace AlbumStore.Controllers
 
         // GET api/albums/
         [HttpGet]
-        public ActionResult<List<Album>> GetAllAlbums()
+        public ActionResult<List<AlbumReadDto>> GetAllAlbums()
         {
             List<Album> artists = (List<Album>)_repository.GetAllAlbums();
             List<AlbumReadDto> artistReadDtos = _mapper.Map<List<AlbumReadDto>>(artists);
@@ -34,7 +35,7 @@ namespace AlbumStore.Controllers
 
         // GET api/albums/{id}
         [HttpGet("{id}", Name = "GetAlbumById")]
-        public ActionResult<Album> GetAlbumById(int id)
+        public ActionResult<AlbumReadDto> GetAlbumById(int id)
         {
             Album album = _repository.GetAlbumById(id);
 
@@ -118,5 +119,46 @@ namespace AlbumStore.Controllers
             return NoContent();
         }
 
+        // GET api/albums/search?...
+        [HttpGet("search")]
+        public ActionResult<List<AlbumReadDto>> Search([FromQuery] AlbumReadDto? albumReadDto)
+        {
+            List<Album> matches = new List<Album>();
+
+            if ((albumReadDto.AlbumName != null) && (albumReadDto.Genre != null) && (albumReadDto.Artist != null))
+            {
+                matches = (List<Album>)_repository.Search(albumReadDto.AlbumName, albumReadDto.Genre, albumReadDto.Artist.StageName);
+            } else if ((albumReadDto.AlbumName == null) && (albumReadDto.Genre != null) && (albumReadDto.Artist != null))
+            {
+                matches = (List<Album>)_repository.Search(null, albumReadDto.Genre, albumReadDto.Artist.StageName);
+            } else if ((albumReadDto.AlbumName != null) && (albumReadDto.Genre == null) && (albumReadDto.Artist != null))
+            {
+                matches = (List<Album>)_repository.Search(albumReadDto.AlbumName, null, albumReadDto.Artist.StageName);
+            } else if ((albumReadDto.AlbumName != null) && (albumReadDto.Genre != null) && (albumReadDto.Artist == null))
+            {
+                matches = (List<Album>)_repository.Search(albumReadDto.AlbumName, albumReadDto.Genre, null);
+            } else if ((albumReadDto.AlbumName != null) && (albumReadDto.Genre == null) && (albumReadDto.Artist == null))
+            {
+                matches = (List<Album>)_repository.Search(albumReadDto.AlbumName, null, null);
+            } else if ((albumReadDto.AlbumName == null) && (albumReadDto.Genre != null) && (albumReadDto.Artist == null))
+            {
+                matches = (List<Album>)_repository.Search(null, albumReadDto.Genre, null);
+            } else if ((albumReadDto.AlbumName == null) && (albumReadDto.Genre == null) && (albumReadDto.Artist != null))
+            {
+                matches = (List<Album>)_repository.Search(null, null, albumReadDto.Artist.StageName);
+            } else if((albumReadDto.AlbumName == null) && (albumReadDto.Genre == null) && (albumReadDto.Artist == null))
+            {
+                matches = (List<Album>)_repository.GetAllAlbums();
+            }
+
+            if (!matches.Any())
+            {
+                return NotFound();
+            }
+
+            List<AlbumReadDto> matchDTOs = _mapper.Map<List<AlbumReadDto>>(matches);
+
+            return Ok(matchDTOs);
+        }
     }
 }

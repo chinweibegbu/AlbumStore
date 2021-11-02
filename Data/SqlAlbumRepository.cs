@@ -1,5 +1,6 @@
 ﻿using AlbumStore.Models;
 using Microsoft.EntityFrameworkCore;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -24,13 +25,6 @@ namespace AlbumStore.Data
             return _context.Albums.Include(album => album.Artist).FirstOrDefault(a => a.AlbumId == id);
         }
 
-        public List<Album> GetAlbumsByArtist(string stageName)
-        {
-            List<Album> artistAlbums = new List<Album>();
-
-            return artistAlbums;
-        }
-
         public void CreateAlbum(Album album)
         {
             _context.Albums.Add(album);
@@ -49,6 +43,42 @@ namespace AlbumStore.Data
         public void SaveChanges()
         {
             _context.SaveChanges();
+        }
+
+        public IEnumerable<Album> Search(string? name, string? genre, string? artist)
+        {
+            List<Album> matches = new List<Album>();
+
+            if ((name != null) && (genre != null) && (artist != null))
+            {
+                matches = _context.Albums.Where(a => a.AlbumName.Contains(name) && a.Genre == genre && a.Artist.StageName.Contains(artist)).ToList();
+            }
+            else if ((name == null) && (genre != null) && (artist != null))
+            {
+                matches = _context.Albums.Where(a => a.Genre == genre && a.Artist.StageName.Contains(artist)).ToList();
+            }
+            else if ((name != null) && (genre == null) && (artist != null))
+            {
+                matches = _context.Albums.Where(a => a.AlbumName.Contains(name) && a.Artist.StageName.Contains(artist)).ToList();
+            }
+            else if ((name != null) && (genre != null) && (artist == null))
+            {
+                matches = _context.Albums.Where(a => a.AlbumName.Contains(name) && a.Genre == genre).ToList();
+            }
+            else if ((name != null) && (genre == null) && (artist == null))
+            {
+                matches = _context.Albums.Where(a => a.AlbumName.Contains(name)).ToList();
+            }
+            else if ((name == null) && (genre != null) && (artist == null))
+            {
+                matches = _context.Albums.Where(a => a.Genre == genre).ToList();
+            }
+            else if ((name == null) && (genre == null) && (artist != null))
+            {
+                matches = _context.Albums.Where(a => a.Artist.StageName.Contains(artist)).ToList();
+            }
+
+            return matches;
         }
     }
 }

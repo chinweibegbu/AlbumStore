@@ -10,5 +10,6 @@ namespace AlbumStore.DTOs
         public string Genre { get; set; }
         public decimal Price { get; set; }
         public AlbumArtistReadDto Artist { get; set; }
+        
     }
 }

@@ -45,37 +45,37 @@ namespace AlbumStore.Data
             _context.SaveChanges();
         }
 
-        public IEnumerable<Album> Search(string? name, string? genre, string? artist)
+        public IEnumerable<Album> Search(string? name, Genre? genre, string? artist)
         {
             List<Album> matches = new List<Album>();
 
             if ((name != null) && (genre != null) && (artist != null))
             {
-                matches = _context.Albums.Where(a => a.AlbumName.Contains(name) && a.Genre == genre && a.Artist.StageName.Contains(artist)).ToList();
+                matches = _context.Albums.Include(a => a.Artist).Where(a => a.AlbumName.Contains(name) && a.Genre == genre && a.Artist.StageName.Contains(artist)).ToList();
             }
             else if ((name == null) && (genre != null) && (artist != null))
             {
-                matches = _context.Albums.Where(a => a.Genre == genre && a.Artist.StageName.Contains(artist)).ToList();
+                matches = _context.Albums.Include(a => a.Artist).Where(a => a.Genre == genre && a.Artist.StageName.Contains(artist)).ToList();
             }
             else if ((name != null) && (genre == null) && (artist != null))
             {
-                matches = _context.Albums.Where(a => a.AlbumName.Contains(name) && a.Artist.StageName.Contains(artist)).ToList();
+                matches = _context.Albums.Include(a => a.Artist).Where(a => a.AlbumName.Contains(name) && a.Artist.StageName.Contains(artist)).ToList();
             }
             else if ((name != null) && (genre != null) && (artist == null))
             {
-                matches = _context.Albums.Where(a => a.AlbumName.Contains(name) && a.Genre == genre).ToList();
+                matches = _context.Albums.Include(a => a.Artist).Where(a => a.AlbumName.Contains(name) && a.Genre == genre).ToList();
             }
             else if ((name != null) && (genre == null) && (artist == null))
             {
-                matches = _context.Albums.Where(a => a.AlbumName.Contains(name)).ToList();
+                matches = _context.Albums.Include(a => a.Artist).Where(a => a.AlbumName.Contains(name)).ToList();
             }
             else if ((name == null) && (genre != null) && (artist == null))
             {
-                matches = _context.Albums.Where(a => a.Genre == genre).ToList();
+                matches = _context.Albums.Include(a => a.Artist).Where(a => a.Genre == genre).ToList();
             }
             else if ((name == null) && (genre == null) && (artist != null))
             {
-                matches = _context.Albums.Where(a => a.Artist.StageName.Contains(artist)).ToList();
+                matches = _context.Albums.Include(a => a.Artist).Where(a => a.Artist.StageName.Contains(artist)).ToList();
             }
 
             return matches;

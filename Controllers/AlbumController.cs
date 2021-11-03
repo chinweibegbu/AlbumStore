@@ -49,11 +49,9 @@ namespace AlbumStore.Controllers
             return Ok(albumReadDto);
         }
 
-        // GET api/albums/{album}
-
         // POST api/albums/
         [HttpPost]
-        public ActionResult CreateAlbum(AlbumWriteDto albumWriteDto)
+        public ActionResult<AlbumReadDto> CreateAlbum(AlbumWriteDto albumWriteDto)
         {
             Album albumToCreate = _mapper.Map<Album>(albumWriteDto);
 
@@ -65,8 +63,11 @@ namespace AlbumStore.Controllers
             _repository.CreateAlbum(albumToCreate);
             _repository.SaveChanges();
 
-            // return Ok();
-            return CreatedAtRoute(nameof(GetAlbumById), new { Id = albumToCreate.AlbumId }, albumToCreate);
+            // Get album (+ artist) from DB
+            Album createdAlbum = _repository.GetAlbumById(albumToCreate.AlbumId);
+            AlbumReadDto createdAlbumReadDto = _mapper.Map<AlbumReadDto>(createdAlbum);
+
+            return CreatedAtRoute(nameof(GetAlbumById), new { Id = albumToCreate.AlbumId }, createdAlbumReadDto);
         }
 
         // PATCH api/albums/{id}
@@ -127,25 +128,29 @@ namespace AlbumStore.Controllers
             List<Album> matches = new List<Album>();
             List<Album> completeMatches = new List<Album>();
 
+            #pragma warning disable IDE0059 // Unnecessary assignment of a value
+            bool trial = Enum.TryParse(albumReadDto.Genre, out Genre genre);
+            #pragma warning restore IDE0059 // Unnecessary assignment of a value
+
             // Filter out based on search fields (name, genre, artist)
             if ((albumReadDto.AlbumName != null) && (albumReadDto.Genre != null) && (albumReadDto.Artist != null))
             {
-                matches = (List<Album>)_repository.Search(albumReadDto.AlbumName, albumReadDto.Genre, albumReadDto.Artist.StageName);
+                matches = (List<Album>)_repository.Search(albumReadDto.AlbumName, genre, albumReadDto.Artist.StageName);
             } else if ((albumReadDto.AlbumName == null) && (albumReadDto.Genre != null) && (albumReadDto.Artist != null))
             {
-                matches = (List<Album>)_repository.Search(null, albumReadDto.Genre, albumReadDto.Artist.StageName);
+                matches = (List<Album>)_repository.Search(null, genre, albumReadDto.Artist.StageName);
             } else if ((albumReadDto.AlbumName != null) && (albumReadDto.Genre == null) && (albumReadDto.Artist != null))
             {
                 matches = (List<Album>)_repository.Search(albumReadDto.AlbumName, null, albumReadDto.Artist.StageName);
             } else if ((albumReadDto.AlbumName != null) && (albumReadDto.Genre != null) && (albumReadDto.Artist == null))
             {
-                matches = (List<Album>)_repository.Search(albumReadDto.AlbumName, albumReadDto.Genre, null);
+                matches = (List<Album>)_repository.Search(albumReadDto.AlbumName, genre, null);
             } else if ((albumReadDto.AlbumName != null) && (albumReadDto.Genre == null) && (albumReadDto.Artist == null))
             {
                 matches = (List<Album>)_repository.Search(albumReadDto.AlbumName, null, null);
             } else if ((albumReadDto.AlbumName == null) && (albumReadDto.Genre != null) && (albumReadDto.Artist == null))
             {
-                matches = (List<Album>)_repository.Search(null, albumReadDto.Genre, null);
+                matches = (List<Album>)_repository.Search(null, genre, null);
             } else if ((albumReadDto.AlbumName == null) && (albumReadDto.Genre == null) && (albumReadDto.Artist != null))
             {
                 matches = (List<Album>)_repository.Search(null, null, albumReadDto.Artist.StageName);

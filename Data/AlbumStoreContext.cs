@@ -14,5 +14,6 @@ namespace AlbumStore.Data
         public DbSet<SoloArtist> SoloArtists { get; set; }
         public DbSet<Album> Albums { get; set; }
         public DbSet<ArtistDescription> ArtistDescriptions { get; set; }
+        public DbSet<AlbumGenre> Genres { get; set; }
     }
 }

@@ -120,6 +120,7 @@ namespace AlbumStore.Controllers
             return NoContent();
         }
 
+        /*
         // GET api/albums/search?...
         [HttpGet("search")]
         public ActionResult<List<AlbumReadDto>> Search([FromQuery] AlbumReadDto? albumReadDto, [FromQuery] DateTime? fromDate, [FromQuery] DateTime? toDate)
@@ -199,5 +200,6 @@ namespace AlbumStore.Controllers
 
             return Ok(matchDTOs);
         }
+        */
     }
 }

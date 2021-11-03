@@ -44,7 +44,7 @@ namespace AlbumStore.Data
         {
             _context.SaveChanges();
         }
-
+        /*
         public IEnumerable<Album> Search(string? name, Genre? genre, string? artist)
         {
             List<Album> matches = new List<Album>();
@@ -80,5 +80,6 @@ namespace AlbumStore.Data
 
             return matches;
         }
+        */
     }
 }

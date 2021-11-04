@@ -157,42 +157,41 @@ namespace AlbumStore.Controllers
             return NoContent();
         }
 
-        /*
         // GET api/albums/search?...
         [HttpGet("search")]
-        public ActionResult<List<AlbumReadDto>> Search([FromQuery] AlbumReadDto? albumReadDto, [FromQuery] DateTime? fromDate, [FromQuery] DateTime? toDate)
+        public ActionResult<List<AlbumReadDto>> Search([FromQuery] AlbumSearchDto? albumSearchDto, [FromQuery] DateTime? fromDate, [FromQuery] DateTime? toDate)
         {
             // Create matching results
             List<Album> matches = new List<Album>();
             List<Album> completeMatches = new List<Album>();
 
             #pragma warning disable IDE0059 // Unnecessary assignment of a value
-            bool trial = Enum.TryParse(albumReadDto.Genre, out Genre genre);
+            // bool trial = Enum.TryParse(albumReadDto.Genre, out Genre genre);
             #pragma warning restore IDE0059 // Unnecessary assignment of a value
 
             // Filter out based on search fields (name, genre, artist)
-            if ((albumReadDto.AlbumName != null) && (albumReadDto.Genre != null) && (albumReadDto.Artist != null))
+            if ((albumSearchDto.AlbumName != null) && (albumSearchDto.Genres != null) && (albumSearchDto.Artist != null))
             {
-                matches = (List<Album>)_repository.Search(albumReadDto.AlbumName, genre, albumReadDto.Artist.StageName);
-            } else if ((albumReadDto.AlbumName == null) && (albumReadDto.Genre != null) && (albumReadDto.Artist != null))
+                matches = (List<Album>)_repository.Search(albumSearchDto.AlbumName, albumSearchDto.Genres, albumSearchDto.Artist.StageName);
+            } else if ((albumSearchDto.AlbumName == null) && (albumSearchDto.Genres != null) && (albumSearchDto.Artist != null))
             {
-                matches = (List<Album>)_repository.Search(null, genre, albumReadDto.Artist.StageName);
-            } else if ((albumReadDto.AlbumName != null) && (albumReadDto.Genre == null) && (albumReadDto.Artist != null))
+                matches = (List<Album>)_repository.Search(null, albumSearchDto.Genres, albumSearchDto.Artist.StageName);
+            } else if ((albumSearchDto.AlbumName != null) && (albumSearchDto.Genres == null) && (albumSearchDto.Artist != null))
             {
-                matches = (List<Album>)_repository.Search(albumReadDto.AlbumName, null, albumReadDto.Artist.StageName);
-            } else if ((albumReadDto.AlbumName != null) && (albumReadDto.Genre != null) && (albumReadDto.Artist == null))
+                matches = (List<Album>)_repository.Search(albumSearchDto.AlbumName, null, albumSearchDto.Artist.StageName);
+            } else if ((albumSearchDto.AlbumName != null) && (albumSearchDto.Genres != null) && (albumSearchDto.Artist == null))
             {
-                matches = (List<Album>)_repository.Search(albumReadDto.AlbumName, genre, null);
-            } else if ((albumReadDto.AlbumName != null) && (albumReadDto.Genre == null) && (albumReadDto.Artist == null))
+                matches = (List<Album>)_repository.Search(albumSearchDto.AlbumName, albumSearchDto.Genres, null);
+            } else if ((albumSearchDto.AlbumName != null) && (albumSearchDto.Genres == null) && (albumSearchDto.Artist == null))
             {
-                matches = (List<Album>)_repository.Search(albumReadDto.AlbumName, null, null);
-            } else if ((albumReadDto.AlbumName == null) && (albumReadDto.Genre != null) && (albumReadDto.Artist == null))
+                matches = (List<Album>)_repository.Search(albumSearchDto.AlbumName, null, null);
+            } else if ((albumSearchDto.AlbumName == null) && (albumSearchDto.Genres != null) && (albumSearchDto.Artist == null))
             {
-                matches = (List<Album>)_repository.Search(null, genre, null);
-            } else if ((albumReadDto.AlbumName == null) && (albumReadDto.Genre == null) && (albumReadDto.Artist != null))
+                matches = (List<Album>)_repository.Search(null, albumSearchDto.Genres, null);
+            } else if ((albumSearchDto.AlbumName == null) && (albumSearchDto.Genres == null) && (albumSearchDto.Artist != null))
             {
-                matches = (List<Album>)_repository.Search(null, null, albumReadDto.Artist.StageName);
-            } else if((albumReadDto.AlbumName == null) && (albumReadDto.Genre == null) && (albumReadDto.Artist == null))
+                matches = (List<Album>)_repository.Search(null, null, albumSearchDto.Artist.StageName);
+            } else if((albumSearchDto.AlbumName == null) && (albumSearchDto.Genres == null) && (albumSearchDto.Artist == null))
             {
                 matches = (List<Album>)_repository.GetAllAlbums();
             }
@@ -205,7 +204,7 @@ namespace AlbumStore.Controllers
             {
                 for(int i = 0; i < matches.Count; i++)
                 {
-                    Album album = matches.ElementAt<Album>(i);
+                    Album album = matches.ElementAt(i);
 
                     if (fromDate != null && toDate != null)
                     {
@@ -237,6 +236,5 @@ namespace AlbumStore.Controllers
 
             return Ok(matchDTOs);
         }
-        */
     }
 }

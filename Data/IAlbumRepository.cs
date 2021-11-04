@@ -13,6 +13,6 @@ namespace AlbumStore.Data
         public void SaveChanges();
         public void SetGenres(int albumId, string[] genres);
         public void DeleteAlbumGenres(int albumId);
-        // public IEnumerable<Album> Search(string? name, Genre? genre, string? artist);
+        public IEnumerable<Album> Search(string? name, string[]? genres, string? artist);
     }
 }

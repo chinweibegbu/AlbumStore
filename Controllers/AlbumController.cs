@@ -5,6 +5,7 @@ using AutoMapper;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -97,7 +98,26 @@ namespace AlbumStore.Controllers
             // Create mapping
             AlbumUpdateDto albumUpdateDto = _mapper.Map<AlbumUpdateDto>(albumToUpdate);
 
-            // Update album
+            // WITH GENRE CHANGE: Remove patchDoc with genre change(s)
+            var operation = patchDoc.Operations.FirstOrDefault(op => op.path == "/genres");
+
+            if (operation != null)
+            {
+                // Get new genres
+                var newGenres = patchDoc.Operations.First(op => op.path == "/genres").value;
+
+                // Remove replace genre operation from table
+                patchDoc.Operations.Remove(operation);
+
+                // Delete all album genres with that ID
+                _repository.DeleteAlbumGenres(id);
+
+                // Add all the new genres
+                string[] newFormattedGenres = ((IEnumerable)newGenres).Cast<object>().Select(x => x.ToString()).ToArray();
+                _repository.SetGenres(id, newFormattedGenres);
+            }
+
+            // Update (the filtered) album
             patchDoc.ApplyTo(albumUpdateDto, ModelState);
 
             // Check model validity

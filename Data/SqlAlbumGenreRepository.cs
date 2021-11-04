@@ -1,4 +1,5 @@
 ﻿using AlbumStore.Models;
+using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -14,12 +15,12 @@ namespace AlbumStore.Data
         }
         public IEnumerable<AlbumGenre> GetAllAlbumGenres()
         {
-            return _context.AlbumGenres.ToList();
+            return _context.AlbumGenres.Include(aa => aa.MusicGenre).ToList();
         }
 
         public AlbumGenre GetAlbumGenreById(int id)
         {
-            return _context.AlbumGenres.FirstOrDefault(ag => ag.AlbumGenreId == id);
+            return _context.AlbumGenres.Include(aa => aa.MusicGenre).FirstOrDefault(ag => ag.AlbumGenreId == id);
         }
 
         public void CreateAlbumGenre(AlbumGenre albumGenre)

@@ -126,7 +126,12 @@ namespace AlbumStore.Controllers
                 return NotFound();
             }
 
+            // Delete album
             _repository.DeleteAlbum(albumToDelete);
+            _repository.SaveChanges();
+
+            // Delete entries in AlbumGenre table
+            _repository.DeleteAlbumGenres(id);
             _repository.SaveChanges();
 
             return NoContent();

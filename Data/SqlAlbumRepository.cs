@@ -17,12 +17,18 @@ namespace AlbumStore.Data
 
         public IEnumerable<Album> GetAllAlbums()
         {
-            return _context.Albums.Include(album => album.Artist).Include(album => album.AlbumGenres).ToList();
+            return _context.Albums
+                .Include(album => album.Artist)
+                .Include(album => album.AlbumGenres)
+                .ToList();
         }
 
         public Album GetAlbumById(int id)
         {
-            return _context.Albums.Include(album => album.Artist).Include(album => album.AlbumGenres).FirstOrDefault(a => a.AlbumId == id);
+            return _context.Albums
+                .Include(album => album.Artist)
+                .Include(album => album.AlbumGenres)
+                .FirstOrDefault(a => a.AlbumId == id);
         }
 
         public void CreateAlbum(Album album)

@@ -3,10 +3,10 @@ using System.ComponentModel.DataAnnotations;
 
 namespace AlbumStore.Models
 {
-      public class MusicGenre
-    {
+    public class MusicGenre
+        {
         [Key]
-        public int GenreId { get; set; }
+        public int MusicGenreId { get; set; }
         
         [Required]
         public string Name { get; set; }

@@ -1,5 +1,6 @@
 ﻿using AlbumStore.Models;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace AlbumStore.DTOs
@@ -13,7 +14,8 @@ namespace AlbumStore.DTOs
         [Required]
         public DateTime ReleaseDate { get; set; }
         
-        public string Genre { get; set; }
+        [Required]
+        public string[] Genres { get; set; }
 
         [Required]
         [RegularExpression(@"^\d+\.\d{0,2}$")]      // For 2 decimal places

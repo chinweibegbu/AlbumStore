@@ -7,14 +7,17 @@ namespace AlbumStore.Models
     {
         [Key]
         public int AlbumGenreId { get; set; }
-        
-        [Required]
-        public string Name { get; set; }
 
         public int AlbumId { get; set; }
         public Album Album { get; set; }
 
-        public int GenreId { get; set; }
+        public int MusicGenreId { get; set; }
         public MusicGenre MusicGenre { get; set; }
+
+        public AlbumGenre(int albumId, int musicGenreId)
+        {
+            AlbumId = albumId;
+            MusicGenreId = musicGenreId;
+        }
     }
 }

@@ -15,6 +15,8 @@ namespace AlbumStore.Profiles
             CreateMap<Album, AlbumUpdateDto>();
 
             CreateMap<Album, ArtistAlbumReadDto>();
+            CreateMap<AlbumGenre, AlbumGenreReadDto>();
+            CreateMap<MusicGenre, MusicGenreReadDto>();
         }
     }
 }

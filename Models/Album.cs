@@ -15,8 +15,6 @@ namespace AlbumStore.Models
 
         [Required]
         public DateTime ReleaseDate { get; set; }
-
-        // public Genre Genre { get; set; }
         public List<AlbumGenre> AlbumGenres { get; set; }
 
         [Required]

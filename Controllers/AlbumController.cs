@@ -28,9 +28,9 @@ namespace AlbumStore.Controllers
         [HttpGet]
         public ActionResult<List<AlbumReadDto>> GetAllAlbums()
         {
-            List<Album> artists = (List<Album>)_repository.GetAllAlbums();
-            List<AlbumReadDto> artistReadDtos = _mapper.Map<List<AlbumReadDto>>(artists);
-            return Ok(artistReadDtos);
+            List<Album> albums = (List<Album>)_repository.GetAllAlbums();
+            List<AlbumReadDto> albumReadDtos = _mapper.Map<List<AlbumReadDto>>(albums);
+            return Ok(albumReadDtos);
         }
 
         // GET api/albums/{id}
@@ -53,6 +53,8 @@ namespace AlbumStore.Controllers
         [HttpPost]
         public ActionResult<AlbumReadDto> CreateAlbum(AlbumWriteDto albumWriteDto)
         {
+            string[] genres = albumWriteDto.Genres;
+
             Album albumToCreate = _mapper.Map<Album>(albumWriteDto);
 
             if (albumToCreate == null)
@@ -64,7 +66,17 @@ namespace AlbumStore.Controllers
             _repository.SaveChanges();
 
             // Get album (+ artist) from DB
-            Album createdAlbum = _repository.GetAlbumById(albumToCreate.AlbumId);
+            int createdAlbumId = albumToCreate.AlbumId;
+            Album createdAlbum = _repository.GetAlbumById(createdAlbumId);
+
+            // Set album genres
+            if (genres.Length > 0)
+            {
+                _repository.SetGenres(createdAlbumId, genres);
+                _repository.SaveChanges();
+            }
+
+            // Create album read DTO for successful creation display
             AlbumReadDto createdAlbumReadDto = _mapper.Map<AlbumReadDto>(createdAlbum);
 
             return CreatedAtRoute(nameof(GetAlbumById), new { Id = albumToCreate.AlbumId }, createdAlbumReadDto);

@@ -17,12 +17,12 @@ namespace AlbumStore.Data
 
         public IEnumerable<Album> GetAllAlbums()
         {
-            return _context.Albums.Include(album => album.Artist).ToList();
+            return _context.Albums.Include(album => album.Artist).Include(album => album.AlbumGenres).ToList();
         }
 
         public Album GetAlbumById(int id)
         {
-            return _context.Albums.Include(album => album.Artist).FirstOrDefault(a => a.AlbumId == id);
+            return _context.Albums.Include(album => album.Artist).Include(album => album.AlbumGenres).FirstOrDefault(a => a.AlbumId == id);
         }
 
         public void CreateAlbum(Album album)
@@ -44,6 +44,17 @@ namespace AlbumStore.Data
         {
             _context.SaveChanges();
         }
+
+        public void SetGenres(int albumId, string[] genres)
+        {
+            // Add genres
+            foreach (string genre in genres)
+            {
+                int musicGenreId = _context.MusicGenres.FirstOrDefault(mg => mg.Name == genre).MusicGenreId;     // ID of one genre of new album
+                _context.AlbumGenres.Add(new AlbumGenre(albumId, musicGenreId));
+            }
+        }
+
         /*
         public IEnumerable<Album> Search(string? name, Genre? genre, string? artist)
         {

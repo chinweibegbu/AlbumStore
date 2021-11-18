@@ -4,14 +4,16 @@ using AlbumStore.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace AlbumStore.Migrations
 {
     [DbContext(typeof(AlbumStoreContext))]
-    partial class AlbumStoreContextModelSnapshot : ModelSnapshot
+    [Migration("20211103133611_InitialTestMigration")]
+    partial class InitialTestMigration
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -34,6 +36,9 @@ namespace AlbumStore.Migrations
                     b.Property<int>("ArtistId")
                         .HasColumnType("int");
 
+                    b.Property<int>("Genre")
+                        .HasColumnType("int");
+
                     b.Property<decimal>("Price")
                         .HasColumnType("decimal(18,2)");
 
@@ -45,28 +50,6 @@ namespace AlbumStore.Migrations
                     b.HasIndex("ArtistId");
 
                     b.ToTable("Albums");
-                });
-
-            modelBuilder.Entity("AlbumStore.Models.AlbumGenre", b =>
-                {
-                    b.Property<int>("AlbumGenreId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<int>("AlbumId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("MusicGenreId")
-                        .HasColumnType("int");
-
-                    b.HasKey("AlbumGenreId");
-
-                    b.HasIndex("AlbumId");
-
-                    b.HasIndex("MusicGenreId");
-
-                    b.ToTable("AlbumGenres");
                 });
 
             modelBuilder.Entity("AlbumStore.Models.Artist", b =>
@@ -124,22 +107,6 @@ namespace AlbumStore.Migrations
                     b.ToTable("ArtistDescriptions");
                 });
 
-            modelBuilder.Entity("AlbumStore.Models.MusicGenre", b =>
-                {
-                    b.Property<int>("MusicGenreId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("MusicGenreId");
-
-                    b.ToTable("MusicGenres");
-                });
-
             modelBuilder.Entity("AlbumStore.Models.SoloArtist", b =>
                 {
                     b.HasBaseType("AlbumStore.Models.Artist");
@@ -162,25 +129,6 @@ namespace AlbumStore.Migrations
                     b.Navigation("Artist");
                 });
 
-            modelBuilder.Entity("AlbumStore.Models.AlbumGenre", b =>
-                {
-                    b.HasOne("AlbumStore.Models.Album", "Album")
-                        .WithMany("AlbumGenres")
-                        .HasForeignKey("AlbumId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("AlbumStore.Models.MusicGenre", "MusicGenre")
-                        .WithMany("AlbumGenres")
-                        .HasForeignKey("MusicGenreId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Album");
-
-                    b.Navigation("MusicGenre");
-                });
-
             modelBuilder.Entity("AlbumStore.Models.ArtistDescription", b =>
                 {
                     b.HasOne("AlbumStore.Models.Artist", "Artist")
@@ -192,21 +140,11 @@ namespace AlbumStore.Migrations
                     b.Navigation("Artist");
                 });
 
-            modelBuilder.Entity("AlbumStore.Models.Album", b =>
-                {
-                    b.Navigation("AlbumGenres");
-                });
-
             modelBuilder.Entity("AlbumStore.Models.Artist", b =>
                 {
                     b.Navigation("Albums");
 
                     b.Navigation("ArtistDescription");
-                });
-
-            modelBuilder.Entity("AlbumStore.Models.MusicGenre", b =>
-                {
-                    b.Navigation("AlbumGenres");
                 });
 #pragma warning restore 612, 618
         }

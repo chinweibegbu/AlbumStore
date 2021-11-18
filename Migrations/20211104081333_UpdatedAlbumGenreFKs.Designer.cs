@@ -4,14 +4,16 @@ using AlbumStore.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace AlbumStore.Migrations
 {
     [DbContext(typeof(AlbumStoreContext))]
-    partial class AlbumStoreContextModelSnapshot : ModelSnapshot
+    [Migration("20211104081333_UpdatedAlbumGenreFKs")]
+    partial class UpdatedAlbumGenreFKs
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -126,7 +128,7 @@ namespace AlbumStore.Migrations
 
             modelBuilder.Entity("AlbumStore.Models.MusicGenre", b =>
                 {
-                    b.Property<int>("MusicGenreId")
+                    b.Property<int>("GenreId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
@@ -135,7 +137,7 @@ namespace AlbumStore.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("MusicGenreId");
+                    b.HasKey("GenreId");
 
                     b.ToTable("MusicGenres");
                 });

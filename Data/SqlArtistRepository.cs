@@ -16,17 +16,32 @@ namespace AlbumStore.Data
 
         public IEnumerable<Artist> GetAllArtists()
         {
-            return _context.Artists.Include(artist => artist.Albums).Include(artist => artist.ArtistDescription).ToList();
+            return _context.Artists
+                .Include(artist => artist.Albums)
+                .ThenInclude(album => album.AlbumGenres)
+                .ThenInclude(albumGenre => albumGenre.MusicGenre)
+                .Include(artist => artist.ArtistDescription)
+                .ToList();
         }
 
         public IEnumerable<SoloArtist> GetAllSoloArtists()
         {
-            return _context.SoloArtists.Include(soloArtist => soloArtist.Albums).Include(soloArtist => soloArtist.ArtistDescription).ToList();
+            return _context.SoloArtists
+                .Include(soloArtist => soloArtist.Albums)
+                .ThenInclude(artistAlbum => artistAlbum.AlbumGenres)
+                .ThenInclude(albumGenre => albumGenre.MusicGenre)
+                .Include(soloArtist => soloArtist.ArtistDescription)
+                .ToList();
         }
 
         public Artist GetArtistById(int id)
         {
-            return _context.Artists.Include(artist => artist.Albums).Include(artist => artist.ArtistDescription).FirstOrDefault(a => a.ArtistId == id);
+            return _context.Artists
+                .Include(artist => artist.Albums)
+                .ThenInclude(artistAlbum => artistAlbum.AlbumGenres)
+                .ThenInclude(albumGenre => albumGenre.MusicGenre)
+                .Include(artist => artist.ArtistDescription)
+                .FirstOrDefault(a => a.ArtistId == id);
         }
 
         public void CreateArtist(Artist artist)

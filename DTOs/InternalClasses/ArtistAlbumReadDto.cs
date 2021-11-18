@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace AlbumStore.DTOs.InternalClasses
 {
@@ -6,7 +7,7 @@ namespace AlbumStore.DTOs.InternalClasses
     {
         public string AlbumName { get; set; }
         public DateTime ReleaseDate { get; set; }
-        public string Genre { get; set; }
+        public List<AlbumGenreReadDto> AlbumGenres { get; set; }
         public decimal Price { get; set; }
     }
 }

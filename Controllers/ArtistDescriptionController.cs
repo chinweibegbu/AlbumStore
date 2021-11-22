@@ -101,7 +101,7 @@ namespace AlbumStore.Controllers
 
         // DELETE api/artistDescriptions/{id}
         [HttpDelete("{id}")]
-        public ActionResult DeleteArtist(int id)
+        public ActionResult DeleteArtistDescription(int id)
         {
             ArtistDescription artistDescriptionToDelete = _repository.GetArtistDescriptionById(id);
 

@@ -97,6 +97,8 @@ namespace AlbumStore.Controllers
             // Update with mapper
             _mapper.Map(albumUpdateDto, albumToUpdate);
 
+            _service.UpdateAlbum(albumToUpdate);
+
             return NoContent();
         }
 

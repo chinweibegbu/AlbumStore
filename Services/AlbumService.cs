@@ -71,9 +71,9 @@ namespace AlbumStore.Services
             return newPatchDoc;
         }
 
-        public void UpdateAlbum()
+        public void UpdateAlbum(Album album)
         {
-            _repository.UpdateAlbum(null);
+            _repository.UpdateAlbum(album);
             _repository.SaveChanges();
         }
 

@@ -12,7 +12,7 @@ namespace AlbumStore.Services
         public Album GetAlbumById(int id);
         public Album CreateAlbum(Album album, string[] genres);
         public JsonPatchDocument<AlbumUpdateDto> UpdatePatchDoc(int id, JsonPatchDocument<AlbumUpdateDto> patchDoc);
-        public void UpdateAlbum();
+        public void UpdateAlbum(Album album);
         public void DeleteAlbum(Album album);
         public IEnumerable<Album> Search(AlbumSearchDto? albumSearchDto, DateTime? fromDate, DateTime? toDate);
     }

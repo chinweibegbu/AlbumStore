@@ -1,13 +1,11 @@
-﻿using AlbumStore.Data;
-using AlbumStore.DTOs;
+﻿using AlbumStore.DTOs;
 using AlbumStore.Models;
+using AlbumStore.Services;
 using AutoMapper;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace AlbumStore.Controllers
 {
@@ -15,22 +13,23 @@ namespace AlbumStore.Controllers
     [Route("api/albums")]
     public class AlbumController : ControllerBase
     {
-        private readonly IAlbumRepository _repository;
         private readonly IMapper _mapper;
+        private readonly IAlbumService _service;
 
         // Set up repository using dependency injection
-        public AlbumController(IAlbumRepository iRepository, IMapper iMapper)
+        public AlbumController(IMapper iMapper, IAlbumService iService)
         {
-            _repository = iRepository;
             _mapper = iMapper;
+            _service = iService;
         }
 
         // GET api/albums/
         [HttpGet]
         public ActionResult<List<AlbumReadDto>> GetAllAlbums()
         {
-            List<Album> albums = (List<Album>)_repository.GetAllAlbums();
+            List<Album> albums = (List<Album>)_service.GetAllAlbums();
             List<AlbumReadDto> albumReadDtos = _mapper.Map<List<AlbumReadDto>>(albums);
+            
             return Ok(albumReadDtos);
         }
 
@@ -38,7 +37,7 @@ namespace AlbumStore.Controllers
         [HttpGet("{id}", Name = "GetAlbumById")]
         public ActionResult<AlbumReadDto> GetAlbumById(int id)
         {
-            Album album = _repository.GetAlbumById(id);
+            Album album = _service.GetAlbumById(id);
 
             if (album == null)
             {
@@ -54,8 +53,6 @@ namespace AlbumStore.Controllers
         [HttpPost]
         public ActionResult<AlbumReadDto> CreateAlbum(AlbumWriteDto albumWriteDto)
         {
-            string[] genres = albumWriteDto.Genres;
-
             Album albumToCreate = _mapper.Map<Album>(albumWriteDto);
 
             if (albumToCreate == null)
@@ -63,21 +60,8 @@ namespace AlbumStore.Controllers
                 throw new ArgumentNullException();
             }
 
-            _repository.CreateAlbum(albumToCreate);
-            _repository.SaveChanges();
+            Album createdAlbum = _service.CreateAlbum(albumToCreate, albumWriteDto.Genres);
 
-            // Get album (+ artist) from DB
-            int createdAlbumId = albumToCreate.AlbumId;
-            Album createdAlbum = _repository.GetAlbumById(createdAlbumId);
-
-            // Set album genres
-            if (genres.Length > 0)
-            {
-                _repository.SetGenres(createdAlbumId, genres);
-                _repository.SaveChanges();
-            }
-
-            // Create album read DTO for successful creation display
             AlbumReadDto createdAlbumReadDto = _mapper.Map<AlbumReadDto>(createdAlbum);
 
             return CreatedAtRoute(nameof(GetAlbumById), new { Id = albumToCreate.AlbumId }, createdAlbumReadDto);
@@ -88,7 +72,7 @@ namespace AlbumStore.Controllers
         public ActionResult UpdateAlbum(int id, JsonPatchDocument<AlbumUpdateDto> patchDoc)
         {
             // Get album to update
-            Album albumToUpdate = _repository.GetAlbumById(id);
+            Album albumToUpdate = _service.GetAlbumById(id);
 
             if (albumToUpdate == null)
             {
@@ -98,27 +82,11 @@ namespace AlbumStore.Controllers
             // Create mapping
             AlbumUpdateDto albumUpdateDto = _mapper.Map<AlbumUpdateDto>(albumToUpdate);
 
-            // WITH GENRE CHANGE: Remove patchDoc with genre change(s)
-            var operation = patchDoc.Operations.FirstOrDefault(op => op.path == "/genres");
-
-            if (operation != null)
-            {
-                // Get new genres
-                var newGenres = patchDoc.Operations.First(op => op.path == "/genres").value;
-
-                // Remove replace genre operation from table
-                patchDoc.Operations.Remove(operation);
-
-                // Delete all album genres with that ID
-                _repository.DeleteAlbumGenres(id);
-
-                // Add all the new genres
-                string[] newFormattedGenres = ((IEnumerable)newGenres).Cast<object>().Select(x => x.ToString()).ToArray();
-                _repository.SetGenres(id, newFormattedGenres);
-            }
+            // Get updated patchDoc
+            JsonPatchDocument<AlbumUpdateDto> updatePatchDoc = _service.UpdatePatchDoc(id, patchDoc);
 
             // Update (the filtered) album
-            patchDoc.ApplyTo(albumUpdateDto, ModelState);
+            updatePatchDoc.ApplyTo(albumUpdateDto, ModelState);
 
             // Check model validity
             if (!TryValidateModel(albumToUpdate))
@@ -129,9 +97,6 @@ namespace AlbumStore.Controllers
             // Update with mapper
             _mapper.Map(albumUpdateDto, albumToUpdate);
 
-            _repository.UpdateAlbum(albumToUpdate);
-            _repository.SaveChanges();
-
             return NoContent();
         }
 
@@ -139,20 +104,14 @@ namespace AlbumStore.Controllers
         [HttpDelete("{id}")]
         public ActionResult DeleteAlbum(int id)
         {
-            Album albumToDelete = _repository.GetAlbumById(id);
+            Album albumToDelete = _service.GetAlbumById(id);
 
             if (albumToDelete == null)
             {
                 return NotFound();
             }
 
-            // Delete album
-            _repository.DeleteAlbum(albumToDelete);
-            _repository.SaveChanges();
-
-            // Delete entries in AlbumGenre table
-            _repository.DeleteAlbumGenres(id);
-            _repository.SaveChanges();
+            _service.DeleteAlbum(albumToDelete);
 
             return NoContent();
         }
@@ -161,80 +120,17 @@ namespace AlbumStore.Controllers
         [HttpGet("search")]
         public ActionResult<List<AlbumReadDto>> Search([FromQuery] AlbumSearchDto? albumSearchDto, [FromQuery] DateTime? fromDate, [FromQuery] DateTime? toDate)
         {
-            // Create matching results
-            List<Album> matches = new List<Album>();
-            List<Album> completeMatches = new List<Album>();
+            try
+            {
+                List<Album> completeMatches = (List<Album>)_service.Search(albumSearchDto, fromDate, toDate);
+                List<AlbumReadDto> matchDTOs = _mapper.Map<List<AlbumReadDto>>(completeMatches);
 
-            #pragma warning disable IDE0059 // Unnecessary assignment of a value
-            // bool trial = Enum.TryParse(albumReadDto.Genre, out Genre genre);
-            #pragma warning restore IDE0059 // Unnecessary assignment of a value
-
-            // Filter out based on search fields (name, genre, artist)
-            if ((albumSearchDto.AlbumName != null) && (albumSearchDto.Genres != null) && (albumSearchDto.Artist != null))
-            {
-                matches = (List<Album>)_repository.Search(albumSearchDto.AlbumName, albumSearchDto.Genres, albumSearchDto.Artist.StageName);
-            } else if ((albumSearchDto.AlbumName == null) && (albumSearchDto.Genres != null) && (albumSearchDto.Artist != null))
-            {
-                matches = (List<Album>)_repository.Search(null, albumSearchDto.Genres, albumSearchDto.Artist.StageName);
-            } else if ((albumSearchDto.AlbumName != null) && (albumSearchDto.Genres == null) && (albumSearchDto.Artist != null))
-            {
-                matches = (List<Album>)_repository.Search(albumSearchDto.AlbumName, null, albumSearchDto.Artist.StageName);
-            } else if ((albumSearchDto.AlbumName != null) && (albumSearchDto.Genres != null) && (albumSearchDto.Artist == null))
-            {
-                matches = (List<Album>)_repository.Search(albumSearchDto.AlbumName, albumSearchDto.Genres, null);
-            } else if ((albumSearchDto.AlbumName != null) && (albumSearchDto.Genres == null) && (albumSearchDto.Artist == null))
-            {
-                matches = (List<Album>)_repository.Search(albumSearchDto.AlbumName, null, null);
-            } else if ((albumSearchDto.AlbumName == null) && (albumSearchDto.Genres != null) && (albumSearchDto.Artist == null))
-            {
-                matches = (List<Album>)_repository.Search(null, albumSearchDto.Genres, null);
-            } else if ((albumSearchDto.AlbumName == null) && (albumSearchDto.Genres == null) && (albumSearchDto.Artist != null))
-            {
-                matches = (List<Album>)_repository.Search(null, null, albumSearchDto.Artist.StageName);
-            } else if((albumSearchDto.AlbumName == null) && (albumSearchDto.Genres == null) && (albumSearchDto.Artist == null))
-            {
-                matches = (List<Album>)_repository.GetAllAlbums();
+                return Ok(matchDTOs);
             }
-
-            // If it is empty, return NotFound()
-            if (!matches.Any())
+            catch(Exception)
             {
                 return NotFound();
-            } else // If it is not empty, filter by date
-            {
-                for(int i = 0; i < matches.Count; i++)
-                {
-                    Album album = matches.ElementAt(i);
-
-                    if (fromDate != null && toDate != null)
-                    {
-                        if (album.ReleaseDate >= fromDate && album.ReleaseDate <= toDate)
-                        {
-                            completeMatches.Add(album);
-                        }
-                    } else if (fromDate == null && toDate != null)
-                    {
-                        if (album.ReleaseDate <= toDate)
-                        {
-                            completeMatches.Add(album);
-                        }
-                    } else if (fromDate != null && toDate == null)
-                    {
-                        if (album.ReleaseDate >= fromDate)
-                        {
-                            completeMatches.Add(album);
-                        }
-                    } else
-                    {
-                        completeMatches = matches;
-                        break;
-                    }
-                }
             }
-
-            List<AlbumReadDto> matchDTOs = _mapper.Map<List<AlbumReadDto>>(completeMatches);
-
-            return Ok(matchDTOs);
         }
     }
 }

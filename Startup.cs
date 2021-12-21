@@ -1,4 +1,5 @@
 using AlbumStore.Data;
+using AlbumStore.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
@@ -40,6 +41,12 @@ namespace AlbumStore
             services.AddScoped<IArtistRepository, SqlArtistRepository>();
             services.AddScoped<IArtistDescriptionRepository, SqlArtistDescriptionRepository>();
             services.AddScoped<IAlbumGenreRepository, SqlAlbumGenreRepository>();
+            
+            // Service interface mappings
+            services.AddScoped<IAlbumService, AlbumService>();
+            //services.AddScoped<IArtistService, ArtistService>();
+            //services.AddScoped<IArtistDescriptionService, ArtistDescriptionService>();
+            //services.AddScoped<IAlbumGenreService, AlbumGenreService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

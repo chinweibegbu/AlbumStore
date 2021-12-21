@@ -45,7 +45,7 @@ namespace AlbumStore
             // Service interface mappings
             services.AddScoped<IAlbumService, AlbumService>();
             services.AddScoped<IArtistService, ArtistService>();
-            //services.AddScoped<IArtistDescriptionService, ArtistDescriptionService>();
+            services.AddScoped<IArtistDescriptionService, ArtistDescriptionService>();
             //services.AddScoped<IAlbumGenreService, AlbumGenreService>();
         }
 

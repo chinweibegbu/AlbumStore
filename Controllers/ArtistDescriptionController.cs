@@ -1,6 +1,7 @@
 ﻿using AlbumStore.Data;
 using AlbumStore.DTOs;
 using AlbumStore.Models;
+using AlbumStore.Services;
 using AutoMapper;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
@@ -13,22 +14,23 @@ namespace AlbumStore.Controllers
     [Route("api/artistDescriptions")]
     public class ArtistDescriptionController : ControllerBase
     {
-        private readonly IArtistDescriptionRepository _repository;
         private readonly IMapper _mapper;
+        private readonly IArtistDescriptionService _service;
 
         // Set up repository using dependency injection
-        public ArtistDescriptionController(IArtistDescriptionRepository iRepository, IMapper iMapper)
+        public ArtistDescriptionController(IMapper iMapper, IArtistDescriptionService iService)
         {
-            _repository = iRepository;
             _mapper = iMapper;
+            _service = iService;
         }
 
         // GET api/artistDescriptions/
         [HttpGet]
         public ActionResult<List<ArtistDescriptionReadDto>> GetAllArtistDescriptions()
         {
-            List<ArtistDescription> artistDescriptions = (List<ArtistDescription>)_repository.GetAllArtistDescriptions();
-            List<ArtistDescriptionReadDto> artistDescriptionReadDtos = _mapper.Map<List<ArtistDescriptionReadDto>>(_repository.GetAllArtistDescriptions());
+            List<ArtistDescription> artistDescriptions = (List<ArtistDescription>)_service.GetAllArtistDescriptions();
+            List<ArtistDescriptionReadDto> artistDescriptionReadDtos = _mapper.Map<List<ArtistDescriptionReadDto>>(artistDescriptions);
+            
             return Ok(artistDescriptionReadDtos);
         }
 
@@ -36,7 +38,7 @@ namespace AlbumStore.Controllers
         [HttpGet("{id}", Name = "GetArtistDescriptionById")]
         public ActionResult<ArtistDescriptionReadDto> GetArtistDescriptionById(int id)
         {
-            ArtistDescription artistDescription = _repository.GetArtistDescriptionById(id);
+            ArtistDescription artistDescription = _service.GetArtistDescriptionById(id);
             
             if (artistDescription == null)
             {
@@ -59,11 +61,9 @@ namespace AlbumStore.Controllers
                 throw new ArgumentNullException();
             }
 
-            _repository.CreateArtistDescription(artistDescriptionToCreate);
-            _repository.SaveChanges();
+            ArtistDescription createdArtistDescription = _service.CreateArtistDescription(artistDescriptionToCreate);
 
-            // return Ok();
-            return CreatedAtRoute(nameof(GetArtistDescriptionById), new { Id = artistDescriptionToCreate.ArtistDescriptionId }, artistDescriptionToCreate);
+            return CreatedAtRoute(nameof(GetArtistDescriptionById), new { Id = artistDescriptionToCreate.ArtistDescriptionId }, createdArtistDescription);
         }
 
         // PATCH api/artistDescriptions/{id}
@@ -71,7 +71,7 @@ namespace AlbumStore.Controllers
         public ActionResult UpdateArtistDescription(int id, JsonPatchDocument<ArtistDescriptionUpdateDto> patchDoc)
         {
             // Get artist to update
-            ArtistDescription artistDescriptionToUpdate = _repository.GetArtistDescriptionById(id);
+            ArtistDescription artistDescriptionToUpdate = _service.GetArtistDescriptionById(id);
 
             if (artistDescriptionToUpdate == null)
             {
@@ -93,8 +93,7 @@ namespace AlbumStore.Controllers
             // Update with mapper
             _mapper.Map(artistDescriptionUpdateDto, artistDescriptionToUpdate);
 
-            _repository.UpdateArtistDescription(artistDescriptionToUpdate);
-            _repository.SaveChanges();
+            _service.UpdateArtistDescription(artistDescriptionToUpdate);
 
             return NoContent();
         }
@@ -103,15 +102,14 @@ namespace AlbumStore.Controllers
         [HttpDelete("{id}")]
         public ActionResult DeleteArtistDescription(int id)
         {
-            ArtistDescription artistDescriptionToDelete = _repository.GetArtistDescriptionById(id);
+            ArtistDescription artistDescriptionToDelete = _service.GetArtistDescriptionById(id);
 
             if (artistDescriptionToDelete == null)
             {
                 return NotFound();
             }
 
-            _repository.DeleteArtistDescription(artistDescriptionToDelete);
-            _repository.SaveChanges();
+            _service.DeleteArtistDescription(artistDescriptionToDelete);
 
             return NoContent();
         }

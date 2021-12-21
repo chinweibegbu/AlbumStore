@@ -22,25 +22,5 @@ namespace AlbumStore.Data
         {
             return _context.AlbumGenres.Include(aa => aa.MusicGenre).FirstOrDefault(ag => ag.AlbumGenreId == id);
         }
-
-        public void CreateAlbumGenre(AlbumGenre albumGenre)
-        {
-            _context.AlbumGenres.Add(albumGenre);
-        }
-
-        public void UpdateAlbumGenre(AlbumGenre albumGenre)
-        {
-            // Empty
-        }
-
-        public void DeleteAlbumGenre(AlbumGenre albumGenre)
-        {
-            _context.AlbumGenres.Remove(albumGenre);
-        }
-
-        public void SaveChanges()
-        {
-            _context.SaveChanges();
-        }
     }
 }

@@ -46,7 +46,7 @@ namespace AlbumStore
             services.AddScoped<IAlbumService, AlbumService>();
             services.AddScoped<IArtistService, ArtistService>();
             services.AddScoped<IArtistDescriptionService, ArtistDescriptionService>();
-            //services.AddScoped<IAlbumGenreService, AlbumGenreService>();
+            services.AddScoped<IAlbumGenreService, AlbumGenreService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

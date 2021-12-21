@@ -1,10 +1,6 @@
-﻿using AlbumStore.Data;
-using AlbumStore.DTOs;
-using AlbumStore.Models;
-using AutoMapper;
-using Microsoft.AspNetCore.JsonPatch;
+﻿using AlbumStore.Models;
+using AlbumStore.Services;
 using Microsoft.AspNetCore.Mvc;
-using System;
 using System.Collections.Generic;
 
 namespace AlbumStore.Controllers
@@ -13,19 +9,19 @@ namespace AlbumStore.Controllers
     [Route("api/albumGenres")]
     public class AlbumGenreController : ControllerBase
     {
-        private readonly IAlbumGenreRepository _repository;
+        private readonly IAlbumGenreService _service;
 
         // Set up repository using dependency injection
-        public AlbumGenreController(IAlbumGenreRepository iRepository)
+        public AlbumGenreController(IAlbumGenreService iService)
         {
-            _repository = iRepository;
+            _service = iService;
         }
 
         // GET api/AlbumGenres/
         [HttpGet]
         public ActionResult<List<AlbumGenre>> GetAllAlbumGenres()
         {
-            List<AlbumGenre> albumGenres = (List<AlbumGenre>)_repository.GetAllAlbumGenres();
+            List<AlbumGenre> albumGenres = (List<AlbumGenre>)_service.GetAllAlbumGenres();
             return Ok(albumGenres);
         }
 
@@ -33,7 +29,7 @@ namespace AlbumStore.Controllers
         [HttpGet("{id}", Name = "GetAlbumGenreById")]
         public ActionResult<AlbumGenre> GetAlbumGenreById(int id)
         {
-            AlbumGenre AlbumGenre = _repository.GetAlbumGenreById(id);
+            AlbumGenre AlbumGenre = _service.GetAlbumGenreById(id);
             
             if (AlbumGenre == null)
             {

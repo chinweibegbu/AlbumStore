@@ -32,6 +32,6 @@ dotnet run
 ##### ArtistsDescriptions
 1. Get all artistDescriptions: `GET api/artistDescriptions/`
 2. Get artistDescription by ID: `GET api/artistDescriptions/{id}`
-3. Create a artistDescription: `POST api/artistDescriptions`
-4. Update a artistDescription: `PATCH api/artistDescriptions/{id}`
-5. Delete a artistDescription: `DELETE api/artistDescriptions/{id}`
+3. Create an artistDescription: `POST api/artistDescriptions`
+4. Update an artistDescription: `PATCH api/artistDescriptions/{id}`
+5. Delete an artistDescription: `DELETE api/artistDescriptions/{id}`

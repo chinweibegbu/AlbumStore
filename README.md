@@ -1,9 +1,12 @@
 # Album Store API
 This is an Web API coded in ASP.NET Core based on the sample API used in the "Implementing Entity Framwork with MVC" [MSDN online course](https://channel9.msdn.com/Series/Implementing-Entity-Framework-with-MVC).
 
+API Documentation: https://documenter.getpostman.com/view/18067684/UVJYKzBJ
+
 ### Technology Used
 * C# (ASP.NET Core)
 * Entity Framework
+* Postman
 
 ### Run the app
 ```
